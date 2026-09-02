@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/hooks/useAuth'
 import type { FinancialEntry, ProjectRevenueSplit, Project } from '@/types'
@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/Button'
 import { Input, Select } from '@/components/ui/Form'
 import { Modal } from '@/components/ui/Modal'
 import { LoadingSpinner, StatusBadge } from '@/components/ui/Shared'
-import { Plus, DollarSign, TrendingUp, TrendingDown, ChevronDown, ChevronRight } from 'lucide-react'
+import { Plus, DollarSign, TrendingUp, TrendingDown, ChevronDown, ChevronRight, Pencil, Trash2 } from 'lucide-react'
 
 export function FinancialPage() {
   const { isSocio } = useAuth()
@@ -18,25 +18,43 @@ export function FinancialPage() {
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
+  const [editingEntry, setEditingEntry] = useState<FinancialEntry | null>(null)
   const [expandedSplit, setExpandedSplit] = useState<string | null>(null)
 
-  useEffect(() => {
-    async function fetch() {
-      const [entriesRes, splitsRes, projectsRes] = await Promise.all([
-        supabase.from('financial_entries').select('*, projects(nome)').order('data', { ascending: false }),
-        supabase.from('project_revenue_splits').select('*, financial_entries(*, projects(nome)), revenue_split_details(*, profiles(nome))').order('created_at', { ascending: false }),
-        supabase.from('projects').select('id, nome').order('nome'),
-      ])
-      setEntries((entriesRes.data ?? []) as (FinancialEntry & { projects?: { nome: string } })[])
-      setSplits((splitsRes.data ?? []) as (ProjectRevenueSplit & {
-        financial_entries?: FinancialEntry & { projects?: { nome: string } }
-        revenue_split_details?: { profiles?: { nome: string }; valor_base_fixa: number; valor_variavel: number; valor_total: number }[]
-      })[])
-      setProjects((projectsRes.data ?? []) as Project[])
-      setLoading(false)
-    }
-    fetch()
+  const fetchData = useCallback(async () => {
+    const [entriesRes, splitsRes, projectsRes] = await Promise.all([
+      supabase.from('financial_entries').select('*, projects(nome)').order('data', { ascending: false }),
+      supabase.from('project_revenue_splits').select('*, financial_entries(*, projects(nome)), revenue_split_details(*, profiles(nome))').order('created_at', { ascending: false }),
+      supabase.from('projects').select('id, nome').order('nome'),
+    ])
+    setEntries((entriesRes.data ?? []) as (FinancialEntry & { projects?: { nome: string } })[])
+    setSplits((splitsRes.data ?? []) as (ProjectRevenueSplit & {
+      financial_entries?: FinancialEntry & { projects?: { nome: string } }
+      revenue_split_details?: { profiles?: { nome: string }; valor_base_fixa: number; valor_variavel: number; valor_total: number }[]
+    })[])
+    setProjects((projectsRes.data ?? []) as Project[])
+    setLoading(false)
   }, [])
+
+  useEffect(() => {
+    fetchData()
+  }, [fetchData])
+
+  async function handleDeleteEntry(id: string) {
+    if (!confirm('Tem certeza que deseja excluir este lançamento financeiro?')) return
+    await supabase.from('financial_entries').delete().eq('id', id)
+    fetchData()
+  }
+
+  function handleOpenNewModal() {
+    setEditingEntry(null)
+    setShowModal(true)
+  }
+
+  function handleOpenEditModal(entry: FinancialEntry) {
+    setEditingEntry(entry)
+    setShowModal(true)
+  }
 
   if (loading) return <LoadingSpinner />
   if (!isSocio) return <div className="text-center py-12 text-gray-500 dark:text-gray-400">Acesso restrito a sócios</div>
@@ -48,7 +66,7 @@ export function FinancialPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Financeiro</h1>
-        <Button onClick={() => setShowModal(true)}>
+        <Button onClick={handleOpenNewModal}>
           <Plus className="h-4 w-4" /> Novo Lançamento
         </Button>
       </div>
@@ -83,7 +101,7 @@ export function FinancialPage() {
         </div>
       </div>
 
-      {/* Splits */}
+      {/* Divisões de Receita */}
       <div className="mb-8">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Divisões de Receita</h2>
         {splits.length === 0 ? (
@@ -149,7 +167,7 @@ export function FinancialPage() {
         )}
       </div>
 
-      {/* Lançamentos */}
+      {/* Lançamentos com Editar e Deletar */}
       <div>
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Lançamentos</h2>
         <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
@@ -161,6 +179,7 @@ export function FinancialPage() {
                 <th className="px-4 py-3 font-medium">Descrição</th>
                 <th className="px-4 py-3 font-medium">Projeto</th>
                 <th className="px-4 py-3 font-medium text-right">Valor</th>
+                <th className="px-4 py-3 font-medium text-right w-24">Ações</th>
               </tr>
             </thead>
             <tbody>
@@ -173,28 +192,50 @@ export function FinancialPage() {
                   <td className={`px-4 py-3 text-right font-medium ${e.tipo === 'receita' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                     {e.tipo === 'receita' ? '+' : '-'} R$ {e.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </td>
+                  <td className="px-4 py-3 text-right">
+                    <div className="flex items-center justify-end gap-1">
+                      <button
+                        onClick={() => handleOpenEditModal(e)}
+                        className="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                        title="Editar Lançamento"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteEntry(e.id)}
+                        className="p-1.5 rounded hover:bg-red-50 dark:hover:bg-red-950/50 text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                        title="Excluir Lançamento"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </td>
                 </tr>
               ))}
               {entries.length === 0 && (
-                <tr><td colSpan={5} className="px-4 py-8 text-center text-gray-400 dark:text-gray-500">Nenhum lançamento</td></tr>
+                <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-400 dark:text-gray-500">Nenhum lançamento cadastrado</td></tr>
               )}
             </tbody>
           </table>
         </div>
       </div>
 
-      <EntryModal open={showModal} onClose={() => setShowModal(false)} projects={projects} onSaved={() => {
-        supabase.from('financial_entries').select('*, projects(nome)').order('data', { ascending: false }).then(r => setEntries((r.data ?? []) as (FinancialEntry & { projects?: { nome: string } })[]))
-        supabase.from('project_revenue_splits').select('*, financial_entries(*, projects(nome)), revenue_split_details(*, profiles(nome))').order('created_at', { ascending: false }).then(r => setSplits((r.data ?? []) as (ProjectRevenueSplit & { financial_entries?: FinancialEntry & { projects?: { nome: string } }; revenue_split_details?: { profiles?: { nome: string }; valor_base_fixa: number; valor_variavel: number; valor_total: number }[] })[]))
-      }} />
+      <EntryModal
+        open={showModal}
+        onClose={() => setShowModal(false)}
+        projects={projects}
+        entryToEdit={editingEntry}
+        onSaved={fetchData}
+      />
     </div>
   )
 }
 
-function EntryModal({ open, onClose, projects, onSaved }: {
+function EntryModal({ open, onClose, projects, entryToEdit, onSaved }: {
   open: boolean
   onClose: () => void
   projects: Project[]
+  entryToEdit?: FinancialEntry | null
   onSaved: () => void
 }) {
   const [form, setForm] = useState({
@@ -206,22 +247,51 @@ function EntryModal({ open, onClose, projects, onSaved }: {
   })
   const [saving, setSaving] = useState(false)
 
+  useEffect(() => {
+    if (entryToEdit) {
+      setForm({
+        tipo: entryToEdit.tipo,
+        descricao: entryToEdit.descricao,
+        valor: String(entryToEdit.valor),
+        data: entryToEdit.data ?? new Date().toISOString().split('T')[0],
+        project_id: entryToEdit.project_id ?? '',
+      })
+    } else {
+      setForm({
+        tipo: 'receita',
+        descricao: '',
+        valor: '',
+        data: new Date().toISOString().split('T')[0],
+        project_id: '',
+      })
+    }
+  }, [entryToEdit, open])
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setSaving(true)
-    await supabase.from('financial_entries').insert({
-      ...form,
+
+    const payload = {
+      tipo: form.tipo,
+      descricao: form.descricao,
       valor: Number(form.valor),
+      data: form.data,
       project_id: form.project_id || null,
-    })
+    }
+
+    if (entryToEdit) {
+      await supabase.from('financial_entries').update(payload).eq('id', entryToEdit.id)
+    } else {
+      await supabase.from('financial_entries').insert(payload)
+    }
+
     setSaving(false)
-    setForm({ tipo: 'receita', descricao: '', valor: '', data: new Date().toISOString().split('T')[0], project_id: '' })
     onSaved()
     onClose()
   }
 
   return (
-    <Modal open={open} onClose={onClose} title="Novo Lançamento">
+    <Modal open={open} onClose={onClose} title={entryToEdit ? "Editar Lançamento" : "Novo Lançamento"}>
       <form onSubmit={handleSubmit} className="space-y-4">
         <Select label="Tipo" value={form.tipo} onChange={e => setForm(f => ({ ...f, tipo: e.target.value }))}>
           <option value="receita">Receita</option>
@@ -236,7 +306,7 @@ function EntryModal({ open, onClose, projects, onSaved }: {
         </Select>
         <div className="flex justify-end gap-3 pt-2">
           <Button type="button" variant="secondary" onClick={onClose}>Cancelar</Button>
-          <Button type="submit" disabled={saving}>{saving ? 'Salvando...' : 'Salvar'}</Button>
+          <Button type="submit" disabled={saving}>{saving ? 'Salvando...' : (entryToEdit ? 'Atualizar' : 'Salvar')}</Button>
         </div>
       </form>
     </Modal>
