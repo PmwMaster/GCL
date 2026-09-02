@@ -110,6 +110,19 @@ export interface ActivityLog {
   profiles?: Profile
 }
 
+export type AcaoFinanceira = 'criacao' | 'edicao' | 'exclusao'
+
+export interface FinancialLog {
+  id: string
+  financial_entry_id: string | null
+  acao: AcaoFinanceira
+  usuario_id: string | null
+  usuario_nome: string | null
+  dados_anteriores: Record<string, unknown> | null
+  dados_novos: Record<string, unknown> | null
+  created_at: string
+}
+
 export const TIPO_SERVICO_LABELS: Record<TipoServico, string> = {
   landing_page: 'Landing Page',
   integracao_sistemas: 'Integração de Sistemas',
