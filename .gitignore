@@ -1,5 +1,25 @@
+# Dependencies
 node_modules
+.pnpm-store
+
+# Production build outputs
 dist
+dist-ssr
+
+# Local environment & secret files
 .env
+.env*
 *.local
-.vite
+*.mjs
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor & OS files
+.DS_Store
+.idea
+.vscode
+
+# Vercel internal
+.vercel

@@ -34,7 +34,7 @@ export function ClientsPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Clientes</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Clientes</h1>
         <Button onClick={() => setShowModal(true)}>
           <Plus className="h-4 w-4" /> Novo Cliente
         </Button>
@@ -42,13 +42,13 @@ export function ClientsPage() {
 
       <div className="mb-4">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
           <input
             type="text"
             placeholder="Buscar cliente..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full max-w-sm pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none"
+            className="w-full max-w-sm pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-800 rounded-lg text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none"
           />
         </div>
       </div>
@@ -56,10 +56,10 @@ export function ClientsPage() {
       {filtered.length === 0 ? (
         <EmptyState message="Nenhum cliente encontrado" />
       ) : (
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-left text-gray-500 bg-gray-50 border-b">
+              <tr className="text-left text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/50 border-b dark:border-gray-800">
                 <th className="px-4 py-3 font-medium">Nome</th>
                 <th className="px-4 py-3 font-medium">Empresa</th>
                 <th className="px-4 py-3 font-medium">E-mail</th>
@@ -70,18 +70,18 @@ export function ClientsPage() {
             </thead>
             <tbody>
               {filtered.map(client => (
-                <tr key={client.id} className="border-b last:border-0 hover:bg-gray-50">
-                  <td className="px-4 py-3 font-medium text-gray-900">{client.nome}</td>
-                  <td className="px-4 py-3 text-gray-600">{client.empresa ?? '-'}</td>
-                  <td className="px-4 py-3 text-gray-600">{client.contato_email ?? '-'}</td>
-                  <td className="px-4 py-3 text-gray-600">{client.contato_telefone ?? '-'}</td>
-                  <td className="px-4 py-3 text-gray-600">{client.origem ?? '-'}</td>
+                <tr key={client.id} className="border-b last:border-0 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                  <td className="px-4 py-3 font-medium text-gray-900 dark:text-white">{client.nome}</td>
+                  <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{client.empresa ?? '-'}</td>
+                  <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{client.contato_email ?? '-'}</td>
+                  <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{client.contato_telefone ?? '-'}</td>
+                  <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{client.origem ?? '-'}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1">
-                      <button onClick={() => navigate(`/clientes/${client.id}`)} className="p-1.5 rounded hover:bg-gray-100 text-gray-500">
+                      <button onClick={() => navigate(`/clientes/${client.id}`)} className="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
                         <Eye className="h-4 w-4" />
                       </button>
-                      <button onClick={() => handleDelete(client.id)} className="p-1.5 rounded hover:bg-red-50 text-gray-500 hover:text-red-600">
+                      <button onClick={() => handleDelete(client.id)} className="p-1.5 rounded hover:bg-red-50 dark:hover:bg-red-950/50 text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400">
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </div>

@@ -48,7 +48,7 @@ export function ProjectsPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Projetos</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Projetos</h1>
         <Button onClick={() => setShowModal(true)}>
           <Plus className="h-4 w-4" /> Novo Projeto
         </Button>
@@ -56,19 +56,19 @@ export function ProjectsPage() {
 
       <div className="flex flex-wrap gap-3 mb-4">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
           <input
             type="text"
             placeholder="Buscar projeto..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none"
+            className="pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-800 rounded-lg text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none"
           />
         </div>
         <select
           value={filterStatus}
           onChange={e => setFilterStatus(e.target.value)}
-          className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white"
+          className="px-3 py-2 border border-gray-300 dark:border-gray-800 rounded-lg text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:border-primary-500 outline-none"
         >
           <option value="">Todos os status</option>
           {statusProjetoOptions.map(o => (
@@ -78,7 +78,7 @@ export function ProjectsPage() {
         <select
           value={filterTipo}
           onChange={e => setFilterTipo(e.target.value)}
-          className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white"
+          className="px-3 py-2 border border-gray-300 dark:border-gray-800 rounded-lg text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:border-primary-500 outline-none"
         >
           <option value="">Todos os tipos</option>
           {tipoServicoOptions.map(o => (
@@ -90,10 +90,10 @@ export function ProjectsPage() {
       {filtered.length === 0 ? (
         <EmptyState message="Nenhum projeto encontrado" />
       ) : (
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-left text-gray-500 bg-gray-50 border-b">
+              <tr className="text-left text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/50 border-b dark:border-gray-800">
                 <th className="px-4 py-3 font-medium">Projeto</th>
                 <th className="px-4 py-3 font-medium">Cliente</th>
                 <th className="px-4 py-3 font-medium">Tipo</th>
@@ -105,19 +105,19 @@ export function ProjectsPage() {
             </thead>
             <tbody>
               {filtered.map(p => (
-                <tr key={p.id} className="border-b last:border-0 hover:bg-gray-50">
-                  <td className="px-4 py-3 font-medium text-gray-900">{p.nome}</td>
-                  <td className="px-4 py-3 text-gray-600">{(p.clients as unknown as { nome: string })?.nome ?? '-'}</td>
-                  <td className="px-4 py-3 text-gray-600">{TIPO_SERVICO_LABELS[p.tipo_servico]}</td>
+                <tr key={p.id} className="border-b last:border-0 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                  <td className="px-4 py-3 font-medium text-gray-900 dark:text-white">{p.nome}</td>
+                  <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{(p.clients as unknown as { nome: string })?.nome ?? '-'}</td>
+                  <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{TIPO_SERVICO_LABELS[p.tipo_servico]}</td>
                   <td className="px-4 py-3"><StatusBadge status={p.status} labels={STATUS_PROJETO_LABELS} /></td>
-                  <td className="px-4 py-3 text-gray-600">{p.prazo_entrega ? new Date(p.prazo_entrega).toLocaleDateString('pt-BR') : '-'}</td>
-                  <td className="px-4 py-3 text-gray-600">{p.valor_fechado ? `R$ ${Number(p.valor_fechado).toLocaleString('pt-BR')}` : '-'}</td>
+                  <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{p.prazo_entrega ? new Date(p.prazo_entrega).toLocaleDateString('pt-BR') : '-'}</td>
+                  <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{p.valor_fechado ? `R$ ${Number(p.valor_fechado).toLocaleString('pt-BR')}` : '-'}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1">
-                      <button onClick={() => navigate(`/projetos/${p.id}`)} className="p-1.5 rounded hover:bg-gray-100 text-gray-500">
+                      <button onClick={() => navigate(`/projetos/${p.id}`)} className="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
                         <Eye className="h-4 w-4" />
                       </button>
-                      <button onClick={() => handleDelete(p.id)} className="p-1.5 rounded hover:bg-red-50 text-gray-500 hover:text-red-600">
+                      <button onClick={() => handleDelete(p.id)} className="p-1.5 rounded hover:bg-red-50 dark:hover:bg-red-950/50 text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400">
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
@@ -203,15 +203,15 @@ function ProjectModal({ open, onClose, onSaved, clients, profiles }: {
         </div>
 
         <div className="space-y-1">
-          <label className="block text-sm font-medium text-gray-700">Responsáveis</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Responsáveis</label>
           <div className="space-y-2">
             {profiles.map(p => (
-              <label key={p.id} className="flex items-center gap-2 text-sm">
+              <label key={p.id} className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
                 <input
                   type="checkbox"
                   checked={selectedMembers.includes(p.id)}
                   onChange={() => toggleMember(p.id)}
-                  className="rounded border-gray-300"
+                  className="rounded border-gray-300 dark:border-gray-700 dark:bg-gray-800"
                 />
                 {p.nome}
               </label>

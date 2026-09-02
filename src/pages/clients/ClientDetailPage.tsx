@@ -47,17 +47,17 @@ export function ClientDetailPage() {
   }
 
   if (loading) return <LoadingSpinner />
-  if (!client) return <div>Cliente não encontrado</div>
+  if (!client) return <div className="text-gray-500 dark:text-gray-400">Cliente não encontrado</div>
 
   return (
     <div>
-      <button onClick={() => navigate('/clientes')} className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 mb-4">
+      <button onClick={() => navigate('/clientes')} className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-4">
         <ArrowLeft className="h-4 w-4" /> Voltar para clientes
       </button>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Dados do Cliente</h2>
+        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-5">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Dados do Cliente</h2>
           <form onSubmit={handleSave} className="space-y-4">
             <Input label="Nome" value={form.nome} onChange={e => setForm(f => ({ ...f, nome: e.target.value }))} required />
             <Input label="Empresa" value={form.empresa} onChange={e => setForm(f => ({ ...f, empresa: e.target.value }))} />
@@ -70,23 +70,23 @@ export function ClientDetailPage() {
           </form>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Projetos ({projects.length})</h2>
+        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-5">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Projetos ({projects.length})</h2>
           {projects.length === 0 ? (
-            <p className="text-sm text-gray-500">Nenhum projeto vinculado</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Nenhum projeto vinculado</p>
           ) : (
             <div className="space-y-3">
               {projects.map(p => (
                 <div
                   key={p.id}
                   onClick={() => navigate(`/projetos/${p.id}`)}
-                  className="p-3 rounded-lg border border-gray-100 hover:border-primary-200 cursor-pointer transition-colors"
+                  className="p-3 rounded-lg border border-gray-100 dark:border-gray-800 hover:border-primary-200 dark:hover:border-primary-800 bg-gray-50/50 dark:bg-gray-800/40 cursor-pointer transition-colors"
                 >
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm font-medium text-gray-900">{p.nome}</span>
+                    <span className="text-sm font-medium text-gray-900 dark:text-white">{p.nome}</span>
                     <StatusBadge status={p.status} labels={STATUS_PROJETO_LABELS} />
                   </div>
-                  <span className="text-xs text-gray-500">{TIPO_SERVICO_LABELS[p.tipo_servico]}</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">{TIPO_SERVICO_LABELS[p.tipo_servico]}</span>
                 </div>
               ))}
             </div>

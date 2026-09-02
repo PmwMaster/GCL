@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from '@/hooks/useAuth'
+import { ThemeProvider } from '@/contexts/ThemeContext'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { LoginPage } from '@/pages/auth/LoginPage'
 import { DashboardPage } from '@/pages/dashboard/DashboardPage'
@@ -10,6 +11,7 @@ import { ProjectDetailPage } from '@/pages/projects/ProjectDetailPage'
 import { MyTasksPage } from '@/pages/tasks/MyTasksPage'
 import { FinancialPage } from '@/pages/financial/FinancialPage'
 import { SettingsPage } from '@/pages/settings/SettingsPage'
+import { TeamPage } from '@/pages/team/TeamPage'
 import { LoadingSpinner } from '@/components/ui/Shared'
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
@@ -42,6 +44,7 @@ function AppRoutes() {
         <Route path="/projetos" element={<ProjectsPage />} />
         <Route path="/projetos/:id" element={<ProjectDetailPage />} />
         <Route path="/tarefas" element={<MyTasksPage />} />
+        <Route path="/equipe" element={<TeamPage />} />
         <Route path="/financeiro" element={<FinancialPage />} />
         <Route path="/configuracoes" element={<SettingsPage />} />
         <Route path="*" element={<Navigate to="/" />} />
@@ -52,10 +55,12 @@ function AppRoutes() {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <AppRoutes />
-      </AuthProvider>
-    </BrowserRouter>
+    <ThemeProvider defaultTheme="light" storageKey="gcl-theme">
+      <BrowserRouter>
+        <AuthProvider>
+          <AppRoutes />
+        </AuthProvider>
+      </BrowserRouter>
+    </ThemeProvider>
   )
 }

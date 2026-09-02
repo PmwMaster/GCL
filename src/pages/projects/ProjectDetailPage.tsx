@@ -8,7 +8,6 @@ import {
   STATUS_PROJETO_LABELS,
   STATUS_TAREFA_LABELS,
   PRIORIDADE_LABELS,
-  statusTarefaOptions,
   prioridadeOptions,
   statusProjetoOptions,
 } from '@/types'
@@ -16,7 +15,7 @@ import { Button } from '@/components/ui/Button'
 import { Input, Select, Textarea } from '@/components/ui/Form'
 import { Modal } from '@/components/ui/Modal'
 import { LoadingSpinner, StatusBadge } from '@/components/ui/Shared'
-import { ArrowLeft, Plus, Save, Calendar, DollarSign } from 'lucide-react'
+import { ArrowLeft, Plus, Calendar } from 'lucide-react'
 
 export function ProjectDetailPage() {
   const { id } = useParams()
@@ -64,20 +63,20 @@ export function ProjectDetailPage() {
   }
 
   if (loading) return <LoadingSpinner />
-  if (!project) return <div>Projeto não encontrado</div>
+  if (!project) return <div className="text-gray-500 dark:text-gray-400">Projeto não encontrado</div>
 
   const client = project.clients as unknown as { nome: string; empresa: string } | null
 
   return (
     <div>
-      <button onClick={() => navigate('/projetos')} className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 mb-4">
+      <button onClick={() => navigate('/projetos')} className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-4">
         <ArrowLeft className="h-4 w-4" /> Voltar para projetos
       </button>
 
       <div className="flex items-start justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">{project.nome}</h1>
-          <p className="text-sm text-gray-500">{client?.nome}{client?.empresa ? ` — ${client.empresa}` : ''}</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{project.nome}</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{client?.nome}{client?.empresa ? ` — ${client.empresa}` : ''}</p>
         </div>
         <div className="flex items-center gap-3">
           <Select value={project.status} onChange={e => handleStatusChange(e.target.value)} className="w-40">
@@ -89,27 +88,27 @@ export function ProjectDetailPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Info */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
-          <h2 className="text-sm font-semibold text-gray-700">Informações</h2>
+        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-5 space-y-4">
+          <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Informações</h2>
           <div className="space-y-2 text-sm">
-            <div className="flex justify-between"><span className="text-gray-500">Tipo</span><span>{TIPO_SERVICO_LABELS[project.tipo_servico]}</span></div>
-            <div className="flex justify-between"><span className="text-gray-500">Status</span><StatusBadge status={project.status} labels={STATUS_PROJETO_LABELS} /></div>
-            <div className="flex justify-between"><span className="text-gray-500">Valor</span><span>{project.valor_fechado ? `R$ ${Number(project.valor_fechado).toLocaleString('pt-BR')}` : '-'}</span></div>
-            <div className="flex justify-between"><span className="text-gray-500">Início</span><span>{project.data_inicio ? new Date(project.data_inicio).toLocaleDateString('pt-BR') : '-'}</span></div>
-            <div className="flex justify-between"><span className="text-gray-500">Prazo</span><span>{project.prazo_entrega ? new Date(project.prazo_entrega).toLocaleDateString('pt-BR') : '-'}</span></div>
+            <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">Tipo</span><span className="text-gray-900 dark:text-white">{TIPO_SERVICO_LABELS[project.tipo_servico]}</span></div>
+            <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">Status</span><StatusBadge status={project.status} labels={STATUS_PROJETO_LABELS} /></div>
+            <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">Valor</span><span className="text-gray-900 dark:text-white">{project.valor_fechado ? `R$ ${Number(project.valor_fechado).toLocaleString('pt-BR')}` : '-'}</span></div>
+            <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">Início</span><span className="text-gray-900 dark:text-white">{project.data_inicio ? new Date(project.data_inicio).toLocaleDateString('pt-BR') : '-'}</span></div>
+            <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">Prazo</span><span className="text-gray-900 dark:text-white">{project.prazo_entrega ? new Date(project.prazo_entrega).toLocaleDateString('pt-BR') : '-'}</span></div>
           </div>
           {project.descricao && (
             <div>
-              <p className="text-xs text-gray-500 mb-1">Descrição</p>
-              <p className="text-sm text-gray-700">{project.descricao}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Descrição</p>
+              <p className="text-sm text-gray-700 dark:text-gray-300">{project.descricao}</p>
             </div>
           )}
 
           <div>
-            <p className="text-xs text-gray-500 mb-2">Responsáveis</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Responsáveis</p>
             <div className="space-y-1">
               {members.map(m => (
-                <span key={m.profile_id} className="inline-flex items-center px-2.5 py-1 rounded-full text-xs bg-primary-50 text-primary-700 mr-1">
+                <span key={m.profile_id} className="inline-flex items-center px-2.5 py-1 rounded-full text-xs bg-primary-50 text-primary-700 dark:bg-primary-900/40 dark:text-primary-300 mr-1">
                   {m.profiles?.nome}
                 </span>
               ))}
@@ -121,34 +120,34 @@ export function ProjectDetailPage() {
         {/* Tasks */}
         <div className="lg:col-span-2 space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-gray-700">Tarefas ({tasks.length})</h2>
+            <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Tarefas ({tasks.length})</h2>
             <Button size="sm" onClick={() => setShowTaskModal(true)}>
               <Plus className="h-4 w-4" /> Nova Tarefa
             </Button>
           </div>
 
           {tasks.length === 0 ? (
-            <div className="bg-white rounded-xl border border-gray-200 p-8 text-center text-sm text-gray-500">
+            <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-8 text-center text-sm text-gray-500 dark:text-gray-400">
               Nenhuma tarefa cadastrada
             </div>
           ) : (
             <div className="space-y-2">
               {tasks.map(t => (
-                <div key={t.id} className="bg-white rounded-xl border border-gray-200 p-4 flex items-center gap-4">
+                <div key={t.id} className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 flex items-center gap-4">
                   <input
                     type="checkbox"
                     checked={t.status === 'concluida'}
                     onChange={() => handleTaskStatusChange(t.id, t.status === 'concluida' ? 'pendente' : 'concluida')}
-                    className="rounded border-gray-300"
+                    className="rounded border-gray-300 dark:border-gray-700 dark:bg-gray-800"
                   />
                   <div className="flex-1 min-w-0">
-                    <p className={`text-sm font-medium ${t.status === 'concluida' ? 'line-through text-gray-400' : 'text-gray-900'}`}>{t.titulo}</p>
-                    <p className="text-xs text-gray-500">{(t.profiles as unknown as { nome: string })?.nome ?? 'Sem responsável'}</p>
+                    <p className={`text-sm font-medium ${t.status === 'concluida' ? 'line-through text-gray-400 dark:text-gray-500' : 'text-gray-900 dark:text-white'}`}>{t.titulo}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{(t.profiles as unknown as { nome: string })?.nome ?? 'Sem responsável'}</p>
                   </div>
                   <StatusBadge status={t.prioridade} labels={PRIORIDADE_LABELS} />
                   <StatusBadge status={t.status} labels={STATUS_TAREFA_LABELS} />
                   {t.prazo && (
-                    <span className="text-xs text-gray-500 flex items-center gap-1">
+                    <span className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
                       <Calendar className="h-3 w-3" />
                       {new Date(t.prazo).toLocaleDateString('pt-BR')}
                     </span>
@@ -160,17 +159,17 @@ export function ProjectDetailPage() {
 
           {/* Activity Log */}
           <div className="mt-6">
-            <h2 className="text-sm font-semibold text-gray-700 mb-3">Atividades</h2>
+            <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Atividades</h2>
             {logs.length === 0 ? (
-              <p className="text-sm text-gray-400">Nenhuma atividade registrada</p>
+              <p className="text-sm text-gray-400 dark:text-gray-500">Nenhuma atividade registrada</p>
             ) : (
               <div className="space-y-2">
                 {logs.map(log => (
                   <div key={log.id} className="flex items-start gap-3 text-sm">
                     <div className="h-2 w-2 rounded-full bg-primary-400 mt-1.5 shrink-0" />
                     <div>
-                      <p className="text-gray-700">{log.descricao}</p>
-                      <p className="text-xs text-gray-400">
+                      <p className="text-gray-700 dark:text-gray-300">{log.descricao}</p>
+                      <p className="text-xs text-gray-400 dark:text-gray-500">
                         {(log.profiles as unknown as { nome: string })?.nome} — {new Date(log.created_at).toLocaleString('pt-BR')}
                       </p>
                     </div>

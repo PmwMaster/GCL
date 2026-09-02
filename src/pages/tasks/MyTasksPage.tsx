@@ -9,7 +9,6 @@ import {
   statusTarefaOptions,
   prioridadeOptions,
 } from '@/types'
-import { Button } from '@/components/ui/Button'
 import { Select } from '@/components/ui/Form'
 import { LoadingSpinner, StatusBadge } from '@/components/ui/Shared'
 import { Calendar, Filter } from 'lucide-react'
@@ -57,8 +56,8 @@ export function MyTasksPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Minhas Tarefas</h1>
-        <div className="flex items-center gap-2 text-sm text-gray-500">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Minhas Tarefas</h1>
+        <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
           <Filter className="h-4 w-4" />
           {filtered.length} tarefas
         </div>
@@ -68,7 +67,7 @@ export function MyTasksPage() {
         <select
           value={filterStatus}
           onChange={e => setFilterStatus(e.target.value)}
-          className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white"
+          className="px-3 py-2 border border-gray-300 dark:border-gray-800 rounded-lg text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:border-primary-500 outline-none"
         >
           <option value="">Todos os status</option>
           {statusTarefaOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
@@ -76,7 +75,7 @@ export function MyTasksPage() {
         <select
           value={filterPrioridade}
           onChange={e => setFilterPrioridade(e.target.value)}
-          className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white"
+          className="px-3 py-2 border border-gray-300 dark:border-gray-800 rounded-lg text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:border-primary-500 outline-none"
         >
           <option value="">Todas as prioridades</option>
           {prioridadeOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
@@ -86,20 +85,20 @@ export function MyTasksPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {(['pendente', 'em_andamento', 'concluida'] as const).map(status => (
           <div key={status}>
-            <h2 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+            <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
               {STATUS_TAREFA_LABELS[status]}
-              <span className="text-xs font-normal text-gray-400">({grouped[status].length})</span>
+              <span className="text-xs font-normal text-gray-400 dark:text-gray-500">({grouped[status].length})</span>
             </h2>
             <div className="space-y-2">
               {grouped[status].map(t => (
-                <div key={t.id} className="bg-white rounded-xl border border-gray-200 p-4">
+                <div key={t.id} className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4">
                   <div className="flex items-start justify-between mb-2">
-                    <p className="text-sm font-medium text-gray-900">{t.titulo}</p>
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">{t.titulo}</p>
                     <StatusBadge status={t.prioridade} labels={PRIORIDADE_LABELS} />
                   </div>
-                  <p className="text-xs text-gray-500 mb-2">{t.projects?.nome} — {TIPO_SERVICO_LABELS[t.projects?.tipo_servico as keyof typeof TIPO_SERVICO_LABELS] ?? ''}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">{t.projects?.nome} — {TIPO_SERVICO_LABELS[t.projects?.tipo_servico as keyof typeof TIPO_SERVICO_LABELS] ?? ''}</p>
                   {t.prazo && (
-                    <p className="text-xs text-gray-500 flex items-center gap-1">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
                       <Calendar className="h-3 w-3" />
                       {new Date(t.prazo).toLocaleDateString('pt-BR')}
                     </p>
@@ -112,7 +111,7 @@ export function MyTasksPage() {
                 </div>
               ))}
               {grouped[status].length === 0 && (
-                <p className="text-xs text-gray-400 text-center py-4">Nenhuma tarefa</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500 text-center py-4">Nenhuma tarefa</p>
               )}
             </div>
           </div>

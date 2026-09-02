@@ -5,7 +5,8 @@ import type { CompanySettings } from '@/types'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Form'
 import { LoadingSpinner } from '@/components/ui/Shared'
-import { Save, AlertCircle } from 'lucide-react'
+import { Save, AlertCircle, Sun, Moon } from 'lucide-react'
+import { useTheme } from '@/contexts/ThemeContext'
 
 export function SettingsPage() {
   const { isSocio } = useAuth()
@@ -71,12 +72,12 @@ export function SettingsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Configurações da Empresa</h1>
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Configurações da Empresa</h1>
 
       <div className="max-w-xl">
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-1">Parâmetros de Divisão Financeira</h2>
-          <p className="text-sm text-gray-500 mb-6">
+        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">Parâmetros de Divisão Financeira</h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
             Estes percentuais são usados automaticamente ao calcular a divisão de receitas.
             Mudanças aqui valem para as próximas divisões, sem alterar as já calculadas.
           </p>
@@ -92,11 +93,11 @@ export function SettingsPage() {
                 value={form.percentual_reserva}
                 onChange={e => setForm(f => ({ ...f, percentual_reserva: e.target.value }))}
               />
-              <p className="text-xs text-gray-400 mt-1">Percentual do bruto que vai para o caixa da empresa antes da divisão</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Percentual do bruto que vai para o caixa da empresa antes da divisão</p>
             </div>
 
-            <div className="border-t pt-5">
-              <p className="text-sm font-medium text-gray-700 mb-3">Divisão do Lucro Distribuível</p>
+            <div className="border-t dark:border-gray-800 pt-5">
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Divisão do Lucro Distribuível</p>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Input
@@ -108,7 +109,7 @@ export function SettingsPage() {
                     value={form.percentual_fixo}
                     onChange={e => setForm(f => ({ ...f, percentual_fixo: e.target.value }))}
                   />
-                  <p className="text-xs text-gray-400 mt-1">Dividido igualmente entre todos os sócios</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Dividido igualmente entre todos os sócios</p>
                 </div>
                 <div>
                   <Input
@@ -120,23 +121,23 @@ export function SettingsPage() {
                     value={form.percentual_variavel}
                     onChange={e => setForm(f => ({ ...f, percentual_variavel: e.target.value }))}
                   />
-                  <p className="text-xs text-gray-400 mt-1">Dividido entre membros do projeto</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Dividido entre membros do projeto</p>
                 </div>
               </div>
-              <p className="text-xs text-gray-500 mt-2">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                 Soma atual: {Number(form.percentual_fixo) + Number(form.percentual_variavel)}% (deve ser 100%)
               </p>
             </div>
 
             {error && (
-              <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 p-3 rounded-lg">
+              <div className="flex items-center gap-2 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/50 p-3 rounded-lg">
                 <AlertCircle className="h-4 w-4 shrink-0" />
                 {error}
               </div>
             )}
 
             {success && (
-              <div className="text-sm text-green-600 bg-green-50 p-3 rounded-lg">
+              <div className="text-sm text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/50 p-3 rounded-lg">
                 {success}
               </div>
             )}
@@ -146,7 +147,42 @@ export function SettingsPage() {
             </Button>
           </form>
         </div>
+
+        <div className="bg-white rounded-xl border border-gray-200 p-6 mt-6 dark:bg-gray-800 dark:border-gray-700">
+          <h2 className="text-lg font-semibold text-gray-900 mb-1 dark:text-gray-100">Aparência</h2>
+          <p className="text-sm text-gray-500 mb-6 dark:text-gray-400">
+            Personalize o tema da aplicação.
+          </p>
+          <div className="flex items-center gap-3">
+            <ThemeToggleButton />
+          </div>
+        </div>
       </div>
+    </div>
+  )
+}
+
+function ThemeToggleButton() {
+  const { theme, setTheme } = useTheme()
+
+  return (
+    <div className="flex bg-gray-100 p-1 rounded-lg dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
+      <button
+        onClick={() => setTheme('light')}
+        className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
+          theme === 'light' ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-800 dark:text-white' : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white'
+        }`}
+      >
+        <Sun className="h-4 w-4" /> Modo Claro
+      </button>
+      <button
+        onClick={() => setTheme('dark')}
+        className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
+          theme === 'dark' ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-800 dark:text-white' : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white'
+        }`}
+      >
+        <Moon className="h-4 w-4" /> Modo Escuro
+      </button>
     </div>
   )
 }
