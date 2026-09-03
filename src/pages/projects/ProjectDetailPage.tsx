@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/hooks/useAuth'
-import type { Project, Task, ActivityLog, Profile, ProjectMember } from '@/types'
+import type { Project, Task, ActivityLog, Profile, ProjectMember, TipoServico } from '@/types'
 import {
   TIPO_SERVICO_LABELS,
   STATUS_PROJETO_LABELS,
@@ -28,6 +28,9 @@ export function ProjectDetailPage() {
   const [allProfiles, setAllProfiles] = useState<Profile[]>([])
   const [loading, setLoading] = useState(true)
   const [showTaskModal, setShowTaskModal] = useState(false)
+  const [showProjectModal, setShowProjectModal] = useState(false)
+  const [editingTask, setEditingTask] = useState<Task | null>(null)
+  const [showLogsHidden, setShowLogsHidden] = useState(false)
   const [savingStatus, setSavingStatus] = useState(false)
 
   const fetchAll = useCallback(async () => {
@@ -83,6 +86,7 @@ export function ProjectDetailPage() {
             {statusProjetoOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
           </Select>
           {savingStatus && <span className="text-xs text-gray-400">Salvando...</span>}
+          <Button size="sm" variant="secondary" onClick={() => setShowProjectModal(true)}>Editar Projeto</Button>
         </div>
       </div>
 
@@ -108,8 +112,9 @@ export function ProjectDetailPage() {
             <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Responsáveis</p>
             <div className="space-y-1">
               {members.map(m => (
-                <span key={m.profile_id} className="inline-flex items-center px-2.5 py-1 rounded-full text-xs bg-primary-50 text-primary-700 dark:bg-primary-900/40 dark:text-primary-300 mr-1">
-                  {m.profiles?.nome}
+                <span key={m.profile_id} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs bg-primary-50 text-primary-700 dark:bg-primary-900/40 dark:text-primary-300 mr-1">
+                  <span>{m.profiles?.nome}</span>
+                  <span className="font-semibold">({Number(m.contribution ?? 1).toFixed(1)}x)</span>
                 </span>
               ))}
               {members.length === 0 && <span className="text-xs text-gray-400">Nenhum responsável</span>}
@@ -152,30 +157,42 @@ export function ProjectDetailPage() {
                       {new Date(t.prazo).toLocaleDateString('pt-BR')}
                     </span>
                   )}
+                  <div className="ml-2">
+                    <Button size="sm" variant="secondary" onClick={() => { setEditingTask(t); setShowTaskModal(false) }}>
+                      Editar
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>
           )}
 
-          {/* Activity Log */}
+          {/* Activity Log (hidden toggle) */}
           <div className="mt-6">
-            <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Atividades</h2>
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Atividades</h2>
+              <button className="text-xs text-gray-500 hover:text-gray-700" onClick={() => setShowLogsHidden(v => !v)}>{showLogsHidden ? 'Ocultar logs' : 'Mostrar logs'}</button>
+            </div>
             {logs.length === 0 ? (
               <p className="text-sm text-gray-400 dark:text-gray-500">Nenhuma atividade registrada</p>
             ) : (
-              <div className="space-y-2">
-                {logs.map(log => (
-                  <div key={log.id} className="flex items-start gap-3 text-sm">
-                    <div className="h-2 w-2 rounded-full bg-primary-400 mt-1.5 shrink-0" />
-                    <div>
-                      <p className="text-gray-700 dark:text-gray-300">{log.descricao}</p>
-                      <p className="text-xs text-gray-400 dark:text-gray-500">
-                        {(log.profiles as unknown as { nome: string })?.nome} — {new Date(log.created_at).toLocaleString('pt-BR')}
-                      </p>
+              showLogsHidden ? (
+                <div className="space-y-2">
+                  {logs.map(log => (
+                    <div key={log.id} className="flex items-start gap-3 text-sm">
+                      <div className="h-2 w-2 rounded-full bg-primary-400 mt-1.5 shrink-0" />
+                      <div>
+                        <p className="text-gray-700 dark:text-gray-300">{log.descricao}</p>
+                        <p className="text-xs text-gray-400 dark:text-gray-500">
+                          {(log.profiles as unknown as { nome: string })?.nome} — {new Date(log.created_at).toLocaleString('pt-BR')}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-gray-400 dark:text-gray-500">Logs ocultos</p>
+              )
             )}
           </div>
         </div>
@@ -189,17 +206,33 @@ export function ProjectDetailPage() {
         profiles={allProfiles}
         currentProfileId={profile?.id}
       />
+      <TaskModal
+        open={Boolean(editingTask)}
+        onClose={() => setEditingTask(null)}
+        onSaved={fetchAll}
+        projectId={project.id}
+        profiles={allProfiles}
+        currentProfileId={profile?.id}
+        task={editingTask}
+      />
+      <ProjectModal
+        open={showProjectModal}
+        onClose={() => setShowProjectModal(false)}
+        project={project}
+        onSaved={fetchAll}
+      />
     </div>
   )
 }
 
-function TaskModal({ open, onClose, onSaved, projectId, profiles, currentProfileId }: {
+function TaskModal({ open, onClose, onSaved, projectId, profiles, currentProfileId, task }: {
   open: boolean
   onClose: () => void
   onSaved: () => void
   projectId: string
   profiles: Profile[]
   currentProfileId?: string
+  task?: Task | null
 }) {
   const [form, setForm] = useState({
     titulo: '',
@@ -209,15 +242,33 @@ function TaskModal({ open, onClose, onSaved, projectId, profiles, currentProfile
     prazo: '',
   })
   const [saving, setSaving] = useState(false)
+  const [taskId, setTaskId] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (task) {
+      setTaskId(task.id)
+      setForm({ titulo: task.titulo, descricao: task.descricao ?? '', responsavel_id: task.responsavel_id, prioridade: task.prioridade, prazo: task.prazo ?? '' })
+    } else {
+      setTaskId(null)
+      setForm({ titulo: '', descricao: '', responsavel_id: currentProfileId ?? '', prioridade: 'media', prazo: '' })
+    }
+  }, [task, currentProfileId])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setSaving(true)
-    await supabase.from('tasks').insert({
-      ...form,
-      project_id: projectId,
-      prazo: form.prazo || null,
-    })
+    if (taskId) {
+      await supabase.from('tasks').update({
+        ...form,
+        prazo: form.prazo || null,
+      }).eq('id', taskId)
+    } else {
+      await supabase.from('tasks').insert({
+        ...form,
+        project_id: projectId,
+        prazo: form.prazo || null,
+      })
+    }
     setSaving(false)
     setForm({ titulo: '', descricao: '', responsavel_id: currentProfileId ?? '', prioridade: 'media', prazo: '' })
     onSaved()
@@ -247,3 +298,59 @@ function TaskModal({ open, onClose, onSaved, projectId, profiles, currentProfile
     </Modal>
   )
 }
+
+  function ProjectModal({ open, onClose, project, onSaved }: { open: boolean, onClose: () => void, project: Project, onSaved: () => void }) {
+    type ProjectFormState = {
+      nome: string
+      tipo_servico: TipoServico
+      valor_fechado: number | string
+      prazo_entrega: string
+      descricao: string
+    }
+
+    const [form, setForm] = useState<ProjectFormState>({
+      nome: project?.nome ?? '',
+      tipo_servico: project?.tipo_servico ?? 'landing_page',
+      valor_fechado: project?.valor_fechado ?? '',
+      prazo_entrega: project?.prazo_entrega ?? '',
+      descricao: project?.descricao ?? '',
+    })
+    const [saving, setSaving] = useState(false)
+
+    useEffect(() => {
+      if (project) setForm({ nome: project.nome, tipo_servico: project.tipo_servico, valor_fechado: project.valor_fechado ?? '', prazo_entrega: project.prazo_entrega ?? '', descricao: project.descricao ?? '' })
+    }, [project])
+
+    async function handleSubmit(e: React.FormEvent) {
+      e.preventDefault()
+      setSaving(true)
+      await supabase.from('projects').update({
+        nome: form.nome,
+        tipo_servico: form.tipo_servico,
+        valor_fechado: form.valor_fechado || null,
+        prazo_entrega: form.prazo_entrega || null,
+        descricao: form.descricao || null,
+      }).eq('id', project.id)
+      setSaving(false)
+      onSaved()
+      onClose()
+    }
+
+    return (
+      <Modal open={open} onClose={onClose} title="Editar Projeto">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <Input label="Nome *" value={form.nome} onChange={e => setForm(f => ({ ...f, nome: e.target.value }))} required />
+          <Select label="Tipo de serviço" value={form.tipo_servico} onChange={e => setForm(f => ({ ...f, tipo_servico: e.target.value as TipoServico }))}>
+            {Object.keys(TIPO_SERVICO_LABELS).map(k => <option key={k} value={k}>{TIPO_SERVICO_LABELS[k as keyof typeof TIPO_SERVICO_LABELS]}</option>)}
+          </Select>
+          <Input label="Valor fechado" type="number" value={String(form.valor_fechado)} onChange={e => setForm(f => ({ ...f, valor_fechado: Number(e.target.value) }))} />
+          <Input label="Prazo" type="date" value={form.prazo_entrega} onChange={e => setForm(f => ({ ...f, prazo_entrega: e.target.value }))} />
+          <Textarea label="Descrição" value={form.descricao} onChange={e => setForm(f => ({ ...f, descricao: e.target.value }))} />
+          <div className="flex justify-end gap-3 pt-2">
+            <Button type="button" variant="secondary" onClick={onClose}>Cancelar</Button>
+            <Button type="submit" disabled={saving}>{saving ? 'Salvando...' : 'Salvar'}</Button>
+          </div>
+        </form>
+      </Modal>
+    )
+  }

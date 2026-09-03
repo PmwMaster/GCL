@@ -1,0 +1,9 @@
+[
+  {
+    "id": "04f42ed6-7e14-4f31-a098-510d73747fcd",
+    "percentual_reserva": 15,
+    "percentual_fixo": 40,
+    "percentual_variavel": 60,
+    "updated_at": "2026-09-02T16:09:58.451116+00:00"
+  }
+]

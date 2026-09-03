@@ -151,7 +151,7 @@ function ProjectModal({ open, onClose, onSaved, clients, profiles }: {
     nome: '', client_id: '', tipo_servico: 'landing_page', valor_fechado: '',
     data_inicio: '', prazo_entrega: '', descricao: '',
   })
-  const [selectedMembers, setSelectedMembers] = useState<string[]>([])
+  const [selectedMembers, setSelectedMembers] = useState<{ id: string, contribution: number }[]>([])
   const [saving, setSaving] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
@@ -166,10 +166,11 @@ function ProjectModal({ open, onClose, onSaved, clients, profiles }: {
     }).select().single()
 
     if (project && !error) {
-      for (const profileId of selectedMembers) {
+      for (const member of selectedMembers) {
         await supabase.from('project_members').insert({
           project_id: project.id,
-          profile_id: profileId,
+          profile_id: member.id,
+          contribution: member.contribution,
         })
       }
     }
@@ -182,7 +183,15 @@ function ProjectModal({ open, onClose, onSaved, clients, profiles }: {
   }
 
   function toggleMember(id: string) {
-    setSelectedMembers(prev => prev.includes(id) ? prev.filter(m => m !== id) : [...prev, id])
+    setSelectedMembers(prev => {
+      const exists = prev.some(m => m.id === id)
+      if (exists) return prev.filter(m => m.id !== id)
+      return [...prev, { id, contribution: 1 }]
+    })
+  }
+
+  function updateContribution(id: string, value: number) {
+    setSelectedMembers(prev => prev.map(member => member.id === id ? { ...member, contribution: Number.isFinite(value) ? value : 1 } : member))
   }
 
   return (
@@ -204,18 +213,38 @@ function ProjectModal({ open, onClose, onSaved, clients, profiles }: {
 
         <div className="space-y-1">
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Responsáveis</label>
-          <div className="space-y-2">
-            {profiles.map(p => (
-              <label key={p.id} className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-                <input
-                  type="checkbox"
-                  checked={selectedMembers.includes(p.id)}
-                  onChange={() => toggleMember(p.id)}
-                  className="rounded border-gray-300 dark:border-gray-700 dark:bg-gray-800"
-                />
-                {p.nome}
-              </label>
-            ))}
+          <div className="space-y-3">
+            {profiles.map(p => {
+              const selected = selectedMembers.some(m => m.id === p.id)
+              const currentContribution = selectedMembers.find(m => m.id === p.id)?.contribution ?? 1
+
+              return (
+                <div key={p.id} className="rounded-lg border border-gray-200 dark:border-gray-700 p-2">
+                  <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                    <input
+                      type="checkbox"
+                      checked={selected}
+                      onChange={() => toggleMember(p.id)}
+                      className="rounded border-gray-300 dark:border-gray-700 dark:bg-gray-800"
+                    />
+                    {p.nome}
+                  </label>
+                  {selected && (
+                    <div className="mt-2 pl-6">
+                      <label className="block text-xs text-gray-500 dark:text-gray-400">Peso da contribuição</label>
+                      <input
+                        type="number"
+                        min="0.1"
+                        step="0.1"
+                        value={currentContribution}
+                        onChange={e => updateContribution(p.id, Number(e.target.value || 1))}
+                        className="mt-1 w-24 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-2 py-1 text-sm text-gray-900 dark:text-white"
+                      />
+                    </div>
+                  )}
+                </div>
+              )
+            })}
           </div>
         </div>
 

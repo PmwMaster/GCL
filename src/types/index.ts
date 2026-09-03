@@ -43,6 +43,7 @@ export interface ProjectMember {
   project_id: string
   profile_id: string
   papel_no_projeto: string | null
+  contribution?: number | null
   profiles?: Profile
 }
 
