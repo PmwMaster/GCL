@@ -39,8 +39,12 @@ export function ProjectsPage() {
 
   async function handleDelete(id: string) {
     if (!confirm('Tem certeza que deseja excluir este projeto?')) return
-    await supabase.from('projects').delete().eq('id', id)
-    refetch()
+    const { error } = await supabase.from('projects').delete().eq('id', id)
+    if (error) {
+      alert(`Erro ao excluir projeto: ${error.message}`)
+    } else {
+      refetch()
+    }
   }
 
   if (loading) return <LoadingSpinner />

@@ -6,7 +6,7 @@ import { TIPO_SERVICO_LABELS, STATUS_PROJETO_LABELS } from '@/types'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Form'
 import { LoadingSpinner, StatusBadge } from '@/components/ui/Shared'
-import { ArrowLeft, Save } from 'lucide-react'
+import { ArrowLeft, Save, Trash2 } from 'lucide-react'
 
 export function ClientDetailPage() {
   const { id } = useParams()
@@ -16,6 +16,7 @@ export function ClientDetailPage() {
   const [form, setForm] = useState({ nome: '', empresa: '', contato_email: '', contato_telefone: '', origem: '' })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     async function fetch() {
@@ -46,14 +47,31 @@ export function ClientDetailPage() {
     setSaving(false)
   }
 
+  async function handleDeleteClient() {
+    if (!confirm('Tem certeza que deseja excluir este cliente? Todos os projetos e dados vinculados serão excluídos.')) return
+    setDeleting(true)
+    const { error } = await supabase.from('clients').delete().eq('id', id)
+    setDeleting(false)
+    if (error) {
+      alert(`Erro ao excluir cliente: ${error.message}`)
+    } else {
+      navigate('/clientes')
+    }
+  }
+
   if (loading) return <LoadingSpinner />
   if (!client) return <div className="text-gray-500 dark:text-gray-400">Cliente não encontrado</div>
 
   return (
     <div>
-      <button onClick={() => navigate('/clientes')} className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-4">
-        <ArrowLeft className="h-4 w-4" /> Voltar para clientes
-      </button>
+      <div className="flex items-center justify-between mb-4">
+        <button onClick={() => navigate('/clientes')} className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+          <ArrowLeft className="h-4 w-4" /> Voltar para clientes
+        </button>
+        <Button variant="danger" onClick={handleDeleteClient} disabled={deleting}>
+          <Trash2 className="h-4 w-4" /> Excluir Cliente
+        </Button>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-5">

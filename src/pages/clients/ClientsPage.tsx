@@ -24,9 +24,13 @@ export function ClientsPage() {
   )
 
   async function handleDelete(id: string) {
-    if (!confirm('Tem certeza que deseja excluir este cliente?')) return
-    await supabase.from('clients').delete().eq('id', id)
-    refetch()
+    if (!confirm('Tem certeza que deseja excluir este cliente? Todos os projetos e dados vinculados serão excluídos.')) return
+    const { error } = await supabase.from('clients').delete().eq('id', id)
+    if (error) {
+      alert(`Erro ao excluir cliente: ${error.message}`)
+    } else {
+      refetch()
+    }
   }
 
   if (loading) return <LoadingSpinner />

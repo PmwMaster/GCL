@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/Button'
 import { Input, Select, Textarea } from '@/components/ui/Form'
 import { Modal } from '@/components/ui/Modal'
 import { LoadingSpinner, StatusBadge } from '@/components/ui/Shared'
-import { ArrowLeft, Plus, Calendar } from 'lucide-react'
+import { ArrowLeft, Plus, Calendar, Trash2 } from 'lucide-react'
 
 export function ProjectDetailPage() {
   const { id } = useParams()
@@ -29,6 +29,7 @@ export function ProjectDetailPage() {
   const [loading, setLoading] = useState(true)
   const [showTaskModal, setShowTaskModal] = useState(false)
   const [savingStatus, setSavingStatus] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   const fetchAll = useCallback(async () => {
     const [projRes, tasksRes, membersRes, logsRes, profilesRes] = await Promise.all([
@@ -62,6 +63,19 @@ export function ProjectDetailPage() {
     fetchAll()
   }
 
+  async function handleDeleteProject() {
+    if (!project) return
+    if (!confirm('Tem certeza que deseja excluir este projeto?')) return
+    setDeleting(true)
+    const { error } = await supabase.from('projects').delete().eq('id', project.id)
+    setDeleting(false)
+    if (error) {
+      alert(`Erro ao excluir projeto: ${error.message}`)
+    } else {
+      navigate('/projetos')
+    }
+  }
+
   if (loading) return <LoadingSpinner />
   if (!project) return <div className="text-gray-500 dark:text-gray-400">Projeto não encontrado</div>
 
@@ -69,9 +83,14 @@ export function ProjectDetailPage() {
 
   return (
     <div>
-      <button onClick={() => navigate('/projetos')} className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-4">
-        <ArrowLeft className="h-4 w-4" /> Voltar para projetos
-      </button>
+      <div className="flex items-center justify-between mb-4">
+        <button onClick={() => navigate('/projetos')} className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+          <ArrowLeft className="h-4 w-4" /> Voltar para projetos
+        </button>
+        <Button variant="danger" onClick={handleDeleteProject} disabled={deleting}>
+          <Trash2 className="h-4 w-4" /> Excluir Projeto
+        </Button>
+      </div>
 
       <div className="flex items-start justify-between mb-6">
         <div>
