@@ -47,14 +47,12 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
           mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >
-        <div className="p-5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
-          <div className="flex items-center">
-            <LogoIcon className="h-12 w-auto" />
-          </div>
+        <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex items-center justify-center relative min-h-[5rem]">
+          <LogoIcon className="h-16 w-auto max-w-full drop-shadow-sm" />
           {onCloseMobile && (
             <button
               onClick={onCloseMobile}
-              className="lg:hidden p-1.5 rounded-lg text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
+              className="absolute right-4 lg:hidden p-1.5 rounded-lg text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
             >
               <X className="h-5 w-5" />
             </button>
