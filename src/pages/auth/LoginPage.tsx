@@ -35,8 +35,8 @@ export function LoginPage() {
         <div className="w-full max-w-md bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl p-8 sm:p-10 rounded-3xl border border-gray-200/80 dark:border-gray-800/80 shadow-xl dark:shadow-2xl dark:shadow-black/50 transition-all duration-300">
           <div className="mb-8 text-center lg:text-left">
             <div className="flex justify-center lg:justify-start mb-3">
-              <div className="p-2.5 bg-blue-50 dark:bg-blue-950/60 rounded-2xl border border-blue-100 dark:border-blue-900/50 shadow-sm">
-                <LogoIcon className="h-12 w-auto" />
+              <div className="p-3 bg-blue-50 dark:bg-blue-950/60 rounded-2xl border border-blue-100 dark:border-blue-900/50 shadow-sm">
+                <LogoIcon className="h-16 w-auto" />
               </div>
             </div>
             <p className="text-gray-500 dark:text-gray-400 text-sm mt-3">

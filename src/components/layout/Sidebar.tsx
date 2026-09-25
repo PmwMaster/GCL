@@ -47,8 +47,8 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
           mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >
-        <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex items-center justify-center relative min-h-[5rem]">
-          <LogoIcon className="h-16 w-auto max-w-full drop-shadow-sm" />
+        <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex items-center justify-center relative min-h-[6.5rem]">
+          <LogoIcon className="h-20 w-auto max-w-full drop-shadow-sm" />
           {onCloseMobile && (
             <button
               onClick={onCloseMobile}
