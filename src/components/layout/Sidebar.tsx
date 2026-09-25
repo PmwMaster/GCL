@@ -48,12 +48,8 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
         }`}
       >
         <div className="p-5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <LogoIcon className="h-9 w-auto" />
-            <div>
-              <h1 className="text-lg font-bold text-gray-900 dark:text-white leading-none">GCL Agency</h1>
-              <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">Gestão Interna</p>
-            </div>
+          <div className="flex items-center">
+            <LogoIcon className="h-12 w-auto" />
           </div>
           {onCloseMobile && (
             <button
